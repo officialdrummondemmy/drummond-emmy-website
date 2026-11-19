@@ -33,6 +33,34 @@
     .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}.contact-item{padding:18px;background:var(--panel);border-radius:6px}
     footer{padding:30px 0;color:#aaa;border-top:1px solid #292929;font-size:.9rem}
     @media(max-width:760px){.navlinks{display:none}.hero{grid-template-columns:1fr;padding:55px 0}.hero-photo{height:390px;grid-row:1}.about-grid,.cards,.gallery,.contact-grid{grid-template-columns:1fr}.gallery img{height:300px}section{padding:60px 0}h1{letter-spacing:-1.5px}}
+
+    /* Cinematic motion system */
+    @keyframes emmyRise{from{opacity:0;transform:translateY(30px);filter:blur(8px)}to{opacity:1;transform:translateY(0);filter:blur(0)}}
+    @keyframes emmyPop{0%{opacity:0;transform:scale(.9) translateY(16px);filter:blur(7px)}75%{transform:scale(1.025)}100%{opacity:1;transform:scale(1);filter:blur(0)}}
+    @keyframes emmyGlow{0%,100%{text-shadow:0 0 0 rgba(216,173,67,0)}50%{text-shadow:0 0 20px rgba(216,173,67,.42)}}
+    @keyframes emmyPulse{0%,100%{box-shadow:0 0 0 0 rgba(216,173,67,.22)}50%{box-shadow:0 0 0 8px rgba(216,173,67,0)}}
+    .hero .eyebrow{animation:emmyRise .75s both}
+    .hero h1{animation:emmyPop .95s .1s both}
+    .hero h1 span{animation:emmyGlow 4s 1.4s ease-in-out infinite}
+    .hero .lead{animation:emmyRise .8s .3s both}
+    .hero .actions{animation:emmyRise .8s .45s both}
+    .hero-photo{animation:emmyPop 1s .15s both}
+    .hero-photo img{transition:transform .9s ease,filter .9s ease}
+    .hero-photo:hover img{transform:scale(1.045);filter:saturate(1.12)}
+    .btn{transition:transform .25s ease,box-shadow .25s ease,filter .25s ease}
+    .btn:hover{transform:translateY(-4px);box-shadow:0 10px 26px rgba(216,173,67,.2);filter:brightness(1.08)}
+    .primary{animation:emmyPulse 3.5s 2s ease-in-out infinite}
+    .reveal{opacity:0;transform:translateY(26px);filter:blur(7px);transition:opacity .8s ease,transform .8s cubic-bezier(.2,.7,.2,1),filter .8s ease}
+    .reveal.is-visible{opacity:1;transform:translateY(0);filter:blur(0)}
+    .card,.contact-item{transition:transform .35s ease,box-shadow .35s ease,border-color .35s ease}
+    .card:hover,.contact-item:hover{transform:translateY(-7px);box-shadow:0 14px 30px rgba(0,0,0,.3);border-color:var(--gold)}
+    .gallery img{opacity:.65;filter:blur(3px);transform:scale(.985);transition:opacity .8s ease,filter .8s ease,transform .8s ease}
+    .gallery img.is-visible{opacity:1;filter:blur(0);transform:scale(1)}
+    .gallery img:hover{transform:scale(1.025);filter:saturate(1.12)}
+    .chip{transition:background .25s ease,color .25s ease,border-color .25s ease,transform .25s ease}
+    .chip:hover{background:var(--gold);color:#111;border-color:var(--gold);transform:translateY(-3px)}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.reveal,.gallery img{opacity:1;transform:none;filter:none}}
+
   </style>
 </head>
 <body>
@@ -94,5 +122,27 @@
   </div></div></section>
 </main>
 <footer><div class="wrap">© <span id="year"></span> Drummond Emmy. All rights reserved.</div></footer>
-<script>document.getElementById('year').textContent=new Date().getFullYear();</script>
+<script>
+  document.getElementById('year').textContent=new Date().getFullYear();
+  (() => {
+    const revealTargets = document.querySelectorAll(
+      'section .section-tag, section h2, section p, .stat, .card, .genres, .booking, .contact-item, .about-grid > img'
+    );
+    revealTargets.forEach(el => el.classList.add('reveal'));
+    const observed = document.querySelectorAll('.reveal, .gallery img');
+    if (!('IntersectionObserver' in window)) {
+      observed.forEach(el => el.classList.add('is-visible'));
+      return;
+    }
+    const observer = new IntersectionObserver((entries, currentObserver) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          currentObserver.unobserve(entry.target);
+        }
+      });
+    }, {threshold:0.14, rootMargin:'0px 0px -35px 0px'});
+    observed.forEach(el => observer.observe(el));
+  })();
+</script>
 </body></html>
